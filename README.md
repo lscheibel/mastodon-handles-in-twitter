@@ -11,4 +11,6 @@ It works very similarly to [Debirdify](https://pruvisto.org/debirdify/) by searc
 4. Go to [Twitter](https://twitter.com)
 
 You should now start to see mastodon handles next to peoples tweets if they mention their handle in their bio.
-<img width="297" alt="image" src="https://user-images.githubusercontent.com/44374653/201451810-cf9bd963-51e9-4303-b7f5-7b1a921c1911.png">
+<img width="348" alt="image" src="https://user-images.githubusercontent.com/44374653/201537046-a8bccb13-55e7-4c29-af8e-120a3422a7a8.png">
+<img width="349" alt="image" src="https://user-images.githubusercontent.com/44374653/201537076-38550428-41f3-49d1-a45e-1d4164c13931.png">
+
