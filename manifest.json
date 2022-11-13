@@ -6,7 +6,9 @@
   "content_scripts": [
     {
       "matches": ["https://*.twitter.com/*"],
-      "js": ["inject.js"]
+      "run_at": "document_start",
+      "js": ["inject.js"],
+      "css": ["styles.css"]
     }
   ],
   "action": {
