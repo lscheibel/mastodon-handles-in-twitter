@@ -1,6 +1,6 @@
 {
   "name": "Mastodon Handles in Twitter",
-  "description": "Show the Mastodon handle of a Twitter user right next to their tweets. This works similarly to \"Debirdify\" by searching through the users bio.",
+  "description": "A helper to find people on Twitter that use Mastodon.",
   "version": "1.0.0",
   "manifest_version": 3,
   "permissions": ["https://*.twitter.com/*", "scripting"],

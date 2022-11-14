@@ -5,7 +5,7 @@
   "main": "inject.js",
   "scripts": {
     "dev": "tsc -w interceptor.ts --target es2022",
-    "build": "tsc interceptor.ts --target es2022",
+    "build": "tsc interceptor.ts --target es2022 && node scripts/package.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -25,5 +25,8 @@
   "homepage": "https://github.com/lscheibel/mastodon-handles-in-twitter#readme",
   "devDependencies": {
     "typescript": "^4.8.4"
+  },
+  "dependencies": {
+    "archiver": "^5.3.1"
   }
 }

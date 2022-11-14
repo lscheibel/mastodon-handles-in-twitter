@@ -2,10 +2,10 @@
     color: rgb(113, 118, 123);
     width: 1em;
     height: 1em;
-    vertical-align: text-top;
-    transform: translateY(2px); /* idk, visually center it... */
+    vertical-align: text-bottom;
+    transform: translateY(-1px); /* idk, visually center it... */
 }
 
 .EXTENSION_MASTODON_HANDLES_mastodonIcon:hover {
-    /* Highlight it somehow. */
+    /* Todo: Highlight the icon. */
 }
