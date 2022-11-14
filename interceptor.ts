@@ -68,6 +68,7 @@
         if (xhrRes.status !== 200) return;
         if (xhrRes.responseURL?.includes('all.json')) handleHomeTimelineResponseWithUsers(xhrRes);
         if (xhrRes.responseURL?.includes('home.json')) handleHomeTimelineResponseWithUsers(xhrRes);
+        if (xhrRes.responseURL?.includes('adaptive.json')) handleHomeTimelineResponseWithUsers(xhrRes);
         if (xhrRes.responseURL?.includes('HomeLatestTimeline')) handleLatestTweetsResponseWithUsers(xhrRes);
     };
 
