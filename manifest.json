@@ -3,19 +3,18 @@
   "description": "Show the Mastodon handle of a Twitter user right next to their tweets. This works similarly to \"Debirdify\" by searching through the users bio.",
   "version": "1.0.0",
   "manifest_version": 3,
+  "permissions": ["https://*.twitter.com/*", "scripting"],
+  "host_permissions": ["https://*.twitter.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
   "content_scripts": [
     {
       "matches": ["https://*.twitter.com/*"],
-      "run_at": "document_start",
-      "js": ["inject.js"],
       "css": ["styles.css"]
     }
   ],
   "action": {
     "default_icon": "icon.png"
-  },
-  "web_accessible_resources": [{
-    "resources": ["interceptor.js"],
-    "matches": ["https://*.twitter.com/*"]
-  }]
+  }
 }
