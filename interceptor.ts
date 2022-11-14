@@ -66,25 +66,37 @@
 
     const onResponse = (xhrRes: XMLHttpRequest) => {
         if (xhrRes.status !== 200) return;
-        if (xhrRes.responseURL?.includes('all.json')) handleHomeTimelineResponseWithUsers(xhrRes);
-        if (xhrRes.responseURL?.includes('home.json')) handleHomeTimelineResponseWithUsers(xhrRes);
-        if (xhrRes.responseURL?.includes('adaptive.json')) handleHomeTimelineResponseWithUsers(xhrRes);
-        if (xhrRes.responseURL?.includes('HomeLatestTimeline')) handleLatestTweetsResponseWithUsers(xhrRes);
+        if (xhrRes.responseURL?.includes('all.json')) handleJSONResponseWithUsers(xhrRes);
+        if (xhrRes.responseURL?.includes('home.json')) handleJSONResponseWithUsers(xhrRes);
+        if (xhrRes.responseURL?.includes('adaptive.json')) handleJSONResponseWithUsers(xhrRes);
+        if (xhrRes.responseURL?.includes('HomeLatestTimeline')) handleLatestTweetsResponse(xhrRes);
+        if (xhrRes.responseURL?.includes('CommunitiesMainPageTimeline')) handleCommunityTimelineResponse(xhrRes);
     };
 
-    const handleHomeTimelineResponseWithUsers = (xhrRes: XMLHttpRequest) => {
+    const handleJSONResponseWithUsers = (xhrRes: XMLHttpRequest) => {
         const res = parseXHRResponse(xhrRes);
         Object.entries(res?.globalObjects?.users || {}).forEach(([, user]) => {
             extractDataFromLegacyUserObject(user);
         })
     };
 
-    const handleLatestTweetsResponseWithUsers = (xhrRes: XMLHttpRequest) => {
+    const handleLatestTweetsResponse= (xhrRes: XMLHttpRequest) => {
         const res = parseXHRResponse(xhrRes);
+        const graphqlInstructions = res?.data?.home?.home_timeline_urt?.instructions;
+        if (graphqlInstructions) extractUsersFromGraphqlInstructions(graphqlInstructions);
+    };
 
-        res?.data?.home?.home_timeline_urt?.instructions?.forEach((instruction: any) => {
+    const handleCommunityTimelineResponse = (xhrRes: XMLHttpRequest) => {
+        const res = parseXHRResponse(xhrRes);
+        const graphqlInstructions = res?.data?.viewer?.communities_timeline?.timeline?.instructions;
+        if (graphqlInstructions) extractUsersFromGraphqlInstructions(graphqlInstructions);
+    };
+
+    const extractUsersFromGraphqlInstructions = (instructions: any) => {
+        instructions?.forEach((instruction: any) => {
             instruction?.entries?.forEach((entry: any) => {
-                const legacyUser = entry?.content?.itemContent?.tweet_results?.result?.core?.user_results?.result?.legacy;
+                const tweetResult = entry?.content?.itemContent?.tweet_results?.result;
+                const legacyUser = (tweetResult?.core || tweetResult?.tweet?.core)?.user_results?.result?.legacy;
                 if (legacyUser) extractDataFromLegacyUserObject(legacyUser);
 
                 entry?.content?.items?.forEach((item: any) => {
@@ -93,7 +105,7 @@
                 });
             });
         });
-    };
+    }
 
     const extractDataFromLegacyUserObject = (legacyUser: any) => {
         const userEntry: UsersStoreEntry = {

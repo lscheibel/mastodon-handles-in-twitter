@@ -45,25 +45,39 @@
         if (xhrRes.status !== 200)
             return;
         if (xhrRes.responseURL?.includes('all.json'))
-            handleHomeTimelineResponseWithUsers(xhrRes);
+            handleJSONResponseWithUsers(xhrRes);
         if (xhrRes.responseURL?.includes('home.json'))
-            handleHomeTimelineResponseWithUsers(xhrRes);
+            handleJSONResponseWithUsers(xhrRes);
         if (xhrRes.responseURL?.includes('adaptive.json'))
-            handleHomeTimelineResponseWithUsers(xhrRes);
+            handleJSONResponseWithUsers(xhrRes);
         if (xhrRes.responseURL?.includes('HomeLatestTimeline'))
-            handleLatestTweetsResponseWithUsers(xhrRes);
+            handleLatestTweetsResponse(xhrRes);
+        if (xhrRes.responseURL?.includes('CommunitiesMainPageTimeline'))
+            handleCommunityTimelineResponse(xhrRes);
     };
-    const handleHomeTimelineResponseWithUsers = (xhrRes) => {
+    const handleJSONResponseWithUsers = (xhrRes) => {
         const res = parseXHRResponse(xhrRes);
         Object.entries(res?.globalObjects?.users || {}).forEach(([, user]) => {
             extractDataFromLegacyUserObject(user);
         });
     };
-    const handleLatestTweetsResponseWithUsers = (xhrRes) => {
+    const handleLatestTweetsResponse = (xhrRes) => {
         const res = parseXHRResponse(xhrRes);
-        res?.data?.home?.home_timeline_urt?.instructions?.forEach((instruction) => {
+        const graphqlInstructions = res?.data?.home?.home_timeline_urt?.instructions;
+        if (graphqlInstructions)
+            extractUsersFromGraphqlInstructions(graphqlInstructions);
+    };
+    const handleCommunityTimelineResponse = (xhrRes) => {
+        const res = parseXHRResponse(xhrRes);
+        const graphqlInstructions = res?.data?.viewer?.communities_timeline?.timeline?.instructions;
+        if (graphqlInstructions)
+            extractUsersFromGraphqlInstructions(graphqlInstructions);
+    };
+    const extractUsersFromGraphqlInstructions = (instructions) => {
+        instructions?.forEach((instruction) => {
             instruction?.entries?.forEach((entry) => {
-                const legacyUser = entry?.content?.itemContent?.tweet_results?.result?.core?.user_results?.result?.legacy;
+                const tweetResult = entry?.content?.itemContent?.tweet_results?.result;
+                const legacyUser = (tweetResult?.core || tweetResult?.tweet?.core)?.user_results?.result?.legacy;
                 if (legacyUser)
                     extractDataFromLegacyUserObject(legacyUser);
                 entry?.content?.items?.forEach((item) => {
