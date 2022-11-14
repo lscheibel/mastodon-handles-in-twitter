@@ -11,7 +11,6 @@
 {
     console.debug('Mastodon Handles Extension loaded!');
 
-    const PROMOTION_LINK_CLASS_NAME = 'EXTENSION_MASTODON_HANDLES_promotionLink';
     const MASTODON_ICON_CLASS_NAME = 'EXTENSION_MASTODON_HANDLES_mastodonIcon';
 
     // From Debirdify: https://github.com/pruvisto/debirdify/blob/main/main/extract_mastodon_ids.py
@@ -84,12 +83,15 @@
 
         res?.data?.home?.home_timeline_urt?.instructions?.forEach((instruction: any) => {
             instruction?.entries?.forEach((entry: any) => {
+                const legacyUser = entry?.content?.itemContent?.tweet_results?.result?.core?.user_results?.result?.legacy;
+                if (legacyUser) extractDataFromLegacyUserObject(legacyUser);
+
                 entry?.content?.items?.forEach((item: any) => {
                     const legacyUser = item?.item?.itemContent?.tweet_results?.result?.core?.user_results?.result?.legacy;
                     if (legacyUser) extractDataFromLegacyUserObject(legacyUser);
-                })
-            })
-        })
+                });
+            });
+        });
     };
 
     const extractDataFromLegacyUserObject = (legacyUser: any) => {

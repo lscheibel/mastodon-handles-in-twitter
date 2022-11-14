@@ -1,14 +1,3 @@
-.EXTENSION_MASTODON_HANDLES_promotionLink {
-    color: rgb(113, 118, 123);
-    font-family: 'TwitterChirp', sans-serif;
-    font-size: 0.75em;
-    text-decoration: none;
-}
-
-.EXTENSION_MASTODON_HANDLES_promotionLink[href]:hover {
-    text-decoration: underline;
-}
-
 .EXTENSION_MASTODON_HANDLES_mastodonIcon {
     color: rgb(113, 118, 123);
     width: 1em;
@@ -18,5 +7,5 @@
 }
 
 .EXTENSION_MASTODON_HANDLES_mastodonIcon:hover {
-    color: rgb(113, 118, 123);
+    /* Highlight it somehow. */
 }

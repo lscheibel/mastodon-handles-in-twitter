@@ -9,7 +9,6 @@
  * ***/
 {
     console.debug('Mastodon Handles Extension loaded!');
-    const PROMOTION_LINK_CLASS_NAME = 'EXTENSION_MASTODON_HANDLES_promotionLink';
     const MASTODON_ICON_CLASS_NAME = 'EXTENSION_MASTODON_HANDLES_mastodonIcon';
     // From Debirdify: https://github.com/pruvisto/debirdify/blob/main/main/extract_mastodon_ids.py
     // Matches anything of the form @foo@bar.tld or foo@bar.social or foo@social.bar or foo@barmastodontld
@@ -62,6 +61,9 @@
         const res = parseXHRResponse(xhrRes);
         res?.data?.home?.home_timeline_urt?.instructions?.forEach((instruction) => {
             instruction?.entries?.forEach((entry) => {
+                const legacyUser = entry?.content?.itemContent?.tweet_results?.result?.core?.user_results?.result?.legacy;
+                if (legacyUser)
+                    extractDataFromLegacyUserObject(legacyUser);
                 entry?.content?.items?.forEach((item) => {
                     const legacyUser = item?.item?.itemContent?.tweet_results?.result?.core?.user_results?.result?.legacy;
                     if (legacyUser)
