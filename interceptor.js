@@ -54,6 +54,10 @@
             handleLatestTweetsResponse(xhrRes);
         if (xhrRes.responseURL?.includes('CommunitiesMainPageTimeline'))
             handleCommunityTimelineResponse(xhrRes);
+        if (xhrRes.responseURL?.includes('UserTweets'))
+            handleUserTweetsResponse(xhrRes);
+        if (xhrRes.responseURL?.includes('TweetDetail'))
+            handleTweetDetailResponse(xhrRes);
     };
     const handleJSONResponseWithUsers = (xhrRes) => {
         const res = parseXHRResponse(xhrRes);
@@ -73,20 +77,39 @@
         if (graphqlInstructions)
             extractUsersFromGraphqlInstructions(graphqlInstructions);
     };
+    const handleUserTweetsResponse = (xhrRes) => {
+        const res = parseXHRResponse(xhrRes);
+        const graphqlInstructions = res?.data?.user?.result?.timeline_v2?.timeline?.instructions;
+        if (graphqlInstructions)
+            extractUsersFromGraphqlInstructions(graphqlInstructions);
+    };
+    const handleTweetDetailResponse = (xhrRes) => {
+        const res = parseXHRResponse(xhrRes);
+        const graphqlInstructions = res?.data?.threaded_conversation_with_injections_v2?.instructions;
+        if (graphqlInstructions)
+            extractUsersFromGraphqlInstructions(graphqlInstructions);
+    };
     const extractUsersFromGraphqlInstructions = (instructions) => {
         instructions?.forEach((instruction) => {
             instruction?.entries?.forEach((entry) => {
                 const tweetResult = entry?.content?.itemContent?.tweet_results?.result;
-                const legacyUser = (tweetResult?.core || tweetResult?.tweet?.core)?.user_results?.result?.legacy;
-                if (legacyUser)
-                    extractDataFromLegacyUserObject(legacyUser);
+                if (tweetResult)
+                    extractUsersFromTweetResult(tweetResult);
                 entry?.content?.items?.forEach((item) => {
-                    const legacyUser = item?.item?.itemContent?.tweet_results?.result?.core?.user_results?.result?.legacy;
-                    if (legacyUser)
-                        extractDataFromLegacyUserObject(legacyUser);
+                    const tweetResult = item?.item?.itemContent?.tweet_results?.result;
+                    if (tweetResult)
+                        extractUsersFromTweetResult(tweetResult);
                 });
             });
         });
+    };
+    const extractUsersFromTweetResult = (tweetResult) => {
+        const legacyUser = (tweetResult?.core || tweetResult?.tweet?.core)?.user_results?.result?.legacy;
+        if (legacyUser)
+            extractDataFromLegacyUserObject(legacyUser);
+        const quotedTweetUser = tweetResult?.quoted_status_result?.result?.core?.user_results?.result?.legacy;
+        if (quotedTweetUser)
+            extractDataFromLegacyUserObject(quotedTweetUser);
     };
     const extractDataFromLegacyUserObject = (legacyUser) => {
         const userEntry = {
@@ -200,11 +223,11 @@
         addIconToTweets();
     }, 1000);
     const addIconToTweets = () => {
-        const timelineNode = $('[aria-label*=Timeline]') || document;
-        try {
-            const potentialUserHandles = document.evaluate("//*[@data-testid='User-Names']//a[contains(., '@')]", timelineNode, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
-            iterXPathResult(potentialUserHandles, (userHandleNode) => {
-                const anchorElement = userHandleNode;
+        // const potentialUserHandles = document.evaluate("//*[@data-testid='User-Names']//a[contains(., '@')]", timelineNode, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
+        const potentialUserHandles = document.evaluate("//a[starts-with(., '@')]", document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
+        const twitterHandleAnchorElements = mapXPathResult(potentialUserHandles, (el) => el);
+        twitterHandleAnchorElements.forEach((anchorElement) => {
+            try {
                 const twitterHandle = anchorElement.textContent.substring(1); // Remove @
                 const user = usersStore[twitterHandle];
                 if (!user)
@@ -225,16 +248,18 @@
                 anchorElement.parentNode.parentNode.appendChild(separator);
                 anchorElement.parentNode.parentNode.appendChild(wrapper);
                 anchorElement.dataset.hasTwitterPromotion = 'true';
-            });
-        }
-        catch (e) { /* Ignore, we'll try again in a second. */ }
+            }
+            catch (e) { /* Ignore, we'll try again in a second. */ }
+        });
     };
-    const iterXPathResult = (iter, fn) => {
+    const mapXPathResult = (iter, fn) => {
+        const result = [];
         let item = iter.iterateNext();
         while (item) {
-            fn(item);
+            result.push(fn(item));
             item = iter.iterateNext();
         }
+        return result;
     };
     const createMastodonIconElement = (user) => {
         let element = null;

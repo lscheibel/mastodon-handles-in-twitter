@@ -71,6 +71,8 @@
         if (xhrRes.responseURL?.includes('adaptive.json')) handleJSONResponseWithUsers(xhrRes);
         if (xhrRes.responseURL?.includes('HomeLatestTimeline')) handleLatestTweetsResponse(xhrRes);
         if (xhrRes.responseURL?.includes('CommunitiesMainPageTimeline')) handleCommunityTimelineResponse(xhrRes);
+        if (xhrRes.responseURL?.includes('UserTweets')) handleUserTweetsResponse(xhrRes);
+        if (xhrRes.responseURL?.includes('TweetDetail')) handleTweetDetailResponse(xhrRes);
     };
 
     const handleJSONResponseWithUsers = (xhrRes: XMLHttpRequest) => {
@@ -92,19 +94,38 @@
         if (graphqlInstructions) extractUsersFromGraphqlInstructions(graphqlInstructions);
     };
 
+    const handleUserTweetsResponse = (xhrRes: XMLHttpRequest) => {
+        const res = parseXHRResponse(xhrRes);
+        const graphqlInstructions = res?.data?.user?.result?.timeline_v2?.timeline?.instructions;
+        if (graphqlInstructions) extractUsersFromGraphqlInstructions(graphqlInstructions);
+    };
+
+    const handleTweetDetailResponse = (xhrRes: XMLHttpRequest) => {
+        const res = parseXHRResponse(xhrRes);
+        const graphqlInstructions = res?.data?.threaded_conversation_with_injections_v2?.instructions;
+        if (graphqlInstructions) extractUsersFromGraphqlInstructions(graphqlInstructions);
+    };
+
     const extractUsersFromGraphqlInstructions = (instructions: any) => {
         instructions?.forEach((instruction: any) => {
             instruction?.entries?.forEach((entry: any) => {
                 const tweetResult = entry?.content?.itemContent?.tweet_results?.result;
-                const legacyUser = (tweetResult?.core || tweetResult?.tweet?.core)?.user_results?.result?.legacy;
-                if (legacyUser) extractDataFromLegacyUserObject(legacyUser);
+                if (tweetResult) extractUsersFromTweetResult(tweetResult);
 
                 entry?.content?.items?.forEach((item: any) => {
-                    const legacyUser = item?.item?.itemContent?.tweet_results?.result?.core?.user_results?.result?.legacy;
-                    if (legacyUser) extractDataFromLegacyUserObject(legacyUser);
+                    const tweetResult = item?.item?.itemContent?.tweet_results?.result;
+                    if (tweetResult) extractUsersFromTweetResult(tweetResult);
                 });
             });
         });
+    }
+
+    const extractUsersFromTweetResult = (tweetResult: any) => {
+        const legacyUser = (tweetResult?.core || tweetResult?.tweet?.core)?.user_results?.result?.legacy;
+        if (legacyUser) extractDataFromLegacyUserObject(legacyUser);
+
+        const quotedTweetUser = tweetResult?.quoted_status_result?.result?.core?.user_results?.result?.legacy;
+        if (quotedTweetUser) extractDataFromLegacyUserObject(quotedTweetUser);
     }
 
     const extractDataFromLegacyUserObject = (legacyUser: any) => {
@@ -234,11 +255,12 @@
     }, 1_000);
 
     const addIconToTweets = () => {
-        const timelineNode = $('[aria-label*=Timeline]') || document;
-        try {
-            const potentialUserHandles = document.evaluate("//*[@data-testid='User-Names']//a[contains(., '@')]", timelineNode, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
-            iterXPathResult(potentialUserHandles, (userHandleNode) => {
-                const anchorElement = userHandleNode as HTMLAnchorElement;
+        // const potentialUserHandles = document.evaluate("//*[@data-testid='User-Names']//a[contains(., '@')]", timelineNode, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
+        const potentialUserHandles = document.evaluate("//a[starts-with(., '@')]", document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
+        const twitterHandleAnchorElements: HTMLAnchorElement[] = mapXPathResult(potentialUserHandles, (el) => el);
+
+        twitterHandleAnchorElements.forEach((anchorElement) => {
+            try {
                 const twitterHandle = anchorElement.textContent!.substring(1); // Remove @
                 const user = usersStore[twitterHandle];
 
@@ -258,16 +280,18 @@
                 anchorElement.parentNode!.parentNode!.appendChild(separator);
                 anchorElement.parentNode!.parentNode!.appendChild(wrapper);
                 anchorElement.dataset.hasTwitterPromotion = 'true';
-            })
-        } catch (e) {/* Ignore, we'll try again in a second. */}
+            } catch (e) {/* Ignore, we'll try again in a second. */}
+        })
     };
 
-    const iterXPathResult = (iter: XPathResult, fn: (element: Node) => void) => {
+    const mapXPathResult = (iter: XPathResult, fn: (element: Node) => any) => {
+        const result: any[] = [];
         let item = iter.iterateNext();
         while (item) {
-            fn(item);
+            result.push(fn(item));
             item = iter.iterateNext();
         }
+        return result;
     };
 
     const createMastodonIconElement = (user: UsersStoreEntry) => {
