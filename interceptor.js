@@ -219,38 +219,44 @@
             clearInterval(interval);
         };
     };
-    idleInterval(() => {
-        addIconToTweets();
-    }, 1000);
-    const addIconToTweets = () => {
-        // const potentialUserHandles = document.evaluate("//*[@data-testid='User-Names']//a[contains(., '@')]", timelineNode, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
-        const potentialUserHandles = document.evaluate("//a[starts-with(., '@')]", document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
-        const twitterHandleAnchorElements = mapXPathResult(potentialUserHandles, (el) => el);
-        twitterHandleAnchorElements.forEach((anchorElement) => {
-            try {
-                const twitterHandle = anchorElement.textContent.substring(1); // Remove @
-                const user = usersStore[twitterHandle];
-                if (!user)
-                    return;
-                if (anchorElement.href !== `https://twitter.com/${twitterHandle}`)
-                    return; // Filter false-positives.
-                if (anchorElement.dataset.hasTwitterPromotion)
-                    return; // Prevent adding the icon twice.
-                if (!anchorElement.closest('[data-testid="User-Names"]'))
-                    return; // Only add icon in avatar header of tweet.
-                const mastodonIconElement = createMastodonIconElement(user);
-                if (!mastodonIconElement)
-                    return;
-                // @ts-ignore
-                const separator = anchorElement.parentNode.nextElementSibling.cloneNode(true);
-                const wrapper = anchorElement.parentNode.cloneNode();
-                wrapper.appendChild(mastodonIconElement);
-                anchorElement.parentNode.parentNode.appendChild(separator);
-                anchorElement.parentNode.parentNode.appendChild(wrapper);
-                anchorElement.dataset.hasTwitterPromotion = 'true';
-            }
-            catch (e) { /* Ignore, we'll try again in a second. */ }
+    idleInterval(() => addIconToHandles(), 1000);
+    const addIconToHandles = () => {
+        const potentialUserHandles = document.evaluate("//span[starts-with(., '@')]", document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
+        const twitterHandleElements = mapXPathResult(potentialUserHandles, (el) => el);
+        twitterHandleElements.forEach((el) => {
+            const twitterHandle = el.textContent.substring(1); // Remove @
+            const user = usersStore[twitterHandle];
+            if (!user)
+                return;
+            tryAsTweet(el, user);
         });
+    };
+    const findParentElement = (node, predicate, maxDepth = Infinity) => {
+        let depth = 0;
+        let target = node;
+        while (target && depth <= maxDepth) {
+            if (predicate(target))
+                return target;
+            target = target.parentElement;
+            depth++;
+        }
+        return null;
+    };
+    const tryAsTweet = (el, user) => {
+        try {
+            if (el.dataset.hasTwitterPromotion)
+                return;
+            const mastodonIconElement = createMastodonIconElement(user);
+            if (!mastodonIconElement)
+                return;
+            const wrapper = findParentElement(el, (el) => !!el.textContent?.includes('·') && !!el.querySelector('time'), 6);
+            if (!wrapper)
+                return;
+            wrapper.appendChild(createTwitterSeparatorElement());
+            wrapper.appendChild(mastodonIconElement);
+            el.dataset.hasTwitterPromotion = 'true';
+        }
+        catch (e) { /* ... */ }
     };
     const mapXPathResult = (iter, fn) => {
         const result = [];
@@ -279,5 +285,18 @@
             element.appendChild(MASTODON_ICON_SVG_NODE.cloneNode(true));
         }
         return element;
+    };
+    const createTwitterSeparatorElement = () => {
+        const span = document.createElement('span');
+        span.textContent = '·';
+        const wrapper = document.createElement('div');
+        wrapper.setAttribute('aria-hidden', 'true');
+        wrapper.style.color = 'rgb(113, 118, 123)';
+        wrapper.style.padding = '0 4px';
+        wrapper.style.fontSize = '15px';
+        wrapper.style.lineHeight = '20px';
+        wrapper.style.fontFamily = "'TwitterChirp', sans-serif";
+        wrapper.appendChild(span);
+        return wrapper;
     };
 }
