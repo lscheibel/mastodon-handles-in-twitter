@@ -17,7 +17,7 @@
     const M_ID_PATTERN_LOOSE = /\b((http:\/\/|https:\/\/)?([\w\-\.]+\.[\w\-\.]+)\/(web\/)?@([\w\-\.]+))\/?\b/gi;
     const M_URL_PATTERN = /^\/(@|web\/@?)([\w\-\.]+)(\/.*|[.:,;!?()\[\]{}].*)?$/gi;
     const FORBIDDEN_HOSTS = ['tiktok.com', 'youtube.com', 'medium.com', 'skeb.jp', 'pronouns.page', 'foundation.app', 'gamejolt.com', 'traewelling.de', 'observablehq.com', 'gmail.com', 'hotmail.com', 'manylink.co', 'withkoji.com', 'twitter.com', 'nomadlist.com', 'figma.com', 'peakd.com', 'jabber.ccc.de', 'yahoo.com', 'aol.com', 'vice.com', 'wsj.com', 'theguardian.com', 'cbsnews.com', 'cnn.com', 'welt.de', 'nytimes.com', 'gmx.de', 'web.de', 'posteo.de', 'arcor.de', 'bell.net'];
-    const KNOWN_HOSTS = ['mas.to', 'wandering.shop', 'peoplemaking.games', 'todon.eu', 'tilde.zone', 'libretooth.gr', 'metalhead.club', 'lor.sh', 'mathstodon.xyz', 'fosstodon.org', 'masto.ai', 'ravenation.club', 'qoto.org', 'primarycare.app', 'socel.net', 'ioc.exchange', 'hachyderm.io', 'universeodon.com', 'pettingzoo.co', 'masto.nu'];
+    const KNOWN_HOSTS = ['mas.to', 'wandering.shop', 'peoplemaking.games', 'todon.eu', 'tilde.zone', 'libretooth.gr', 'metalhead.club', 'lor.sh', 'mathstodon.xyz', 'fosstodon.org', 'masto.ai', 'ravenation.club', 'qoto.org', 'primarycare.app', 'socel.net', 'ioc.exchange', 'hachyderm.io', 'universeodon.com', 'pettingzoo.co', 'masto.nu', 'infosec.exchange'];
     const HOST_HEURISTIC_KEYWORDS = ['social', 'masto', 'mastodon', 'space', 'fedi', 'toot', 'mstdn'];
     const FEDIVERSE_KEYWORDS = ['mastodon', 'toot', 'tröt', 'fedi', '🦣']; // Todo: Add other fediverse services: https://en.wikipedia.org/wiki/Fediverse
     // https://materialdesignicons.com/icon/mastodon
@@ -50,6 +50,8 @@
         if (xhrRes.responseURL?.includes('home.json'))
             handleJSONResponseWithUsers(xhrRes);
         if (xhrRes.responseURL?.includes('adaptive.json'))
+            handleJSONResponseWithUsers(xhrRes);
+        if (xhrRes.responseURL?.includes('guide.json'))
             handleJSONResponseWithUsers(xhrRes);
         if (xhrRes.responseURL?.includes('HomeLatestTimeline'))
             handleLatestTweetsResponse(xhrRes);
