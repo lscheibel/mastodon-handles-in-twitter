@@ -124,6 +124,9 @@
         const legacyUser = (tweetResult?.core || tweetResult?.tweet?.core)?.user_results?.result?.legacy;
         if (legacyUser) extractDataFromLegacyUserObject(legacyUser);
 
+        const retweetResult = tweetResult?.legacy?.retweeted_status_result?.result;
+        if (retweetResult) extractUsersFromTweetResult(retweetResult);
+
         const quotedTweetUser = tweetResult?.quoted_status_result?.result?.core?.user_results?.result?.legacy;
         if (quotedTweetUser) extractDataFromLegacyUserObject(quotedTweetUser);
     }
