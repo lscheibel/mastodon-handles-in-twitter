@@ -161,13 +161,28 @@
     const findMastodonHandle = (str: string) => {
         try {
             const matches = [...str.matchAll(M_ID_PATTERN_STRICT)].find((match) => !!match?.[2]);
-            if (!matches || matches.length < 3) return null;
-            const [, prefix, dirtyHandle] = matches;
-            const handle = dirtyHandle.trim();
-            const strict = !prefix;
+            if (matches && matches.length >= 3) {
+                const [, prefix, dirtyHandle] = matches;
+                const handle = dirtyHandle.trim();
+                const strict = !prefix;
 
-            if (!validateMastodonHandle(`@${handle}`, strict)) return null;
-            return `@${handle}`;
+                if (validateMastodonHandle(`@${handle}`, strict)) {
+                    return `@${handle}`;
+                }
+            } else {
+                const matches = [...str.matchAll(M_ID_PATTERN_LOOSE)].find((match) => !!match?.[5]);
+                if (matches && matches.length >= 6) {
+                    const host = matches[3].trim();
+                    const id = matches[5].trim();
+                    const handle = `@${id}@${host}`;
+
+                    if (validateMastodonHandle(handle, true)) {
+                        return handle;
+                    }
+                }
+            }
+
+            return null;
         } catch (e) {
             console.error(`Mastodon Extension: Threw while resolving mastodon handle for twitter handle: "${str}"`);
             throw e;
