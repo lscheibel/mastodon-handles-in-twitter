@@ -75,6 +75,7 @@
         if (xhrRes.responseURL?.includes('CommunitiesMainPageTimeline')) handleCommunityTimelineResponse(xhrRes);
         if (xhrRes.responseURL?.includes('UserTweets')) handleUserTweetsResponse(xhrRes);
         if (xhrRes.responseURL?.includes('TweetDetail')) handleTweetDetailResponse(xhrRes);
+        if (xhrRes.responseURL?.includes('Followers')) handleFollowersResponse(xhrRes);
     };
 
     const handleJSONResponseWithUsers = (xhrRes: XMLHttpRequest) => {
@@ -108,11 +109,20 @@
         if (graphqlInstructions) extractUsersFromGraphqlInstructions(graphqlInstructions);
     };
 
+    const handleFollowersResponse = (xhrRes: XMLHttpRequest) => {
+        const res = parseXHRResponse(xhrRes);
+        const graphqlInstructions = res?.data?.user?.result?.timeline?.timeline?.instructions;
+        if (graphqlInstructions) extractUsersFromGraphqlInstructions(graphqlInstructions);
+    };
+
     const extractUsersFromGraphqlInstructions = (instructions: any) => {
         instructions?.forEach((instruction: any) => {
             instruction?.entries?.forEach((entry: any) => {
                 const tweetResult = entry?.content?.itemContent?.tweet_results?.result;
                 if (tweetResult) extractUsersFromTweetResult(tweetResult);
+
+                const legacyUserResult = entry?.content?.itemContent?.user_results?.result?.legacy;
+                if (legacyUserResult) extractDataFromLegacyUserObject(legacyUserResult);
 
                 entry?.content?.items?.forEach((item: any) => {
                     const tweetResult = item?.item?.itemContent?.tweet_results?.result;
