@@ -280,6 +280,7 @@
             if (!user) return;
 
             tryAsTweet(el, user);
+            tryAsTweetSpotlight(el, user);
         })
     };
 
@@ -301,7 +302,24 @@
             const mastodonIconElement = createMastodonIconElement(user);
             if (!mastodonIconElement) return;
 
-            const wrapper = findParentElement(el, (el) => !!el.textContent?.includes('·') && !!el.querySelector('time'), 6);
+            const wrapper = findParentElement(el, (el) => !!el.textContent?.startsWith(`@${user.twitterHandle}·`) && !!el.querySelector('time'), 6);
+            if (!wrapper) return;
+
+            wrapper.appendChild(createTwitterSeparatorElement());
+            wrapper.appendChild(mastodonIconElement);
+
+            el.dataset.hasTwitterPromotion = 'true';
+        } catch (e) { /* ... */ }
+    }
+
+    const tryAsTweetSpotlight = (el: HTMLSpanElement, user: UsersStoreEntry) => {
+        try {
+            if (el.dataset.hasTwitterPromotion) return;
+
+            const mastodonIconElement = createMastodonIconElement(user);
+            if (!mastodonIconElement) return;
+
+            const wrapper = el.closest(`[data-testid="User-Names"] a[href="/${user.twitterHandle}"]`)?.parentElement?.parentElement;
             if (!wrapper) return;
 
             wrapper.appendChild(createTwitterSeparatorElement());
