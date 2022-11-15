@@ -71,11 +71,14 @@
         if (xhrRes.responseURL?.includes('home.json')) handleJSONResponseWithUsers(xhrRes);
         if (xhrRes.responseURL?.includes('adaptive.json')) handleJSONResponseWithUsers(xhrRes);
         if (xhrRes.responseURL?.includes('guide.json')) handleJSONResponseWithUsers(xhrRes);
+        if (xhrRes.responseURL?.includes('recommendations.json')) handleRecommendationsResponse(xhrRes);
         if (xhrRes.responseURL?.includes('HomeLatestTimeline')) handleLatestTweetsResponse(xhrRes);
         if (xhrRes.responseURL?.includes('CommunitiesMainPageTimeline')) handleCommunityTimelineResponse(xhrRes);
         if (xhrRes.responseURL?.includes('UserTweets')) handleUserTweetsResponse(xhrRes);
         if (xhrRes.responseURL?.includes('TweetDetail')) handleTweetDetailResponse(xhrRes);
         if (xhrRes.responseURL?.includes('Followers')) handleFollowersResponse(xhrRes);
+        if (xhrRes.responseURL?.includes('Following')) handleFollowersResponse(xhrRes);
+        if (xhrRes.responseURL?.includes('ConnectTabTimeline')) handleConnectTabTimelineResponse(xhrRes);
     };
 
     const handleJSONResponseWithUsers = (xhrRes: XMLHttpRequest) => {
@@ -115,6 +118,19 @@
         if (graphqlInstructions) extractUsersFromGraphqlInstructions(graphqlInstructions);
     };
 
+    const handleRecommendationsResponse = (xhrRes: XMLHttpRequest) => {
+        const res = parseXHRResponse(xhrRes);
+        res?.forEach?.((tokenizedUser: any) => {
+            if (tokenizedUser?.user) extractDataFromLegacyUserObject(tokenizedUser.user)
+        })
+    };
+
+    const handleConnectTabTimelineResponse = (xhrRes: XMLHttpRequest) => {
+        const res = parseXHRResponse(xhrRes);
+        const graphqlInstructions = res?.data?.connect_tab_timeline?.timeline?.instructions;
+        if (graphqlInstructions) extractUsersFromGraphqlInstructions(graphqlInstructions);
+    };
+
     const extractUsersFromGraphqlInstructions = (instructions: any) => {
         instructions?.forEach((instruction: any) => {
             instruction?.entries?.forEach((entry: any) => {
@@ -127,6 +143,9 @@
                 entry?.content?.items?.forEach((item: any) => {
                     const tweetResult = item?.item?.itemContent?.tweet_results?.result;
                     if (tweetResult) extractUsersFromTweetResult(tweetResult);
+
+                    const legacyUserResult = item?.item?.itemContent?.user_results?.result?.legacy;
+                    if (legacyUserResult) extractDataFromLegacyUserObject(legacyUserResult);
                 });
             });
         });

@@ -53,6 +53,8 @@
             handleJSONResponseWithUsers(xhrRes);
         if (xhrRes.responseURL?.includes('guide.json'))
             handleJSONResponseWithUsers(xhrRes);
+        if (xhrRes.responseURL?.includes('recommendations.json'))
+            handleRecommendationsResponse(xhrRes);
         if (xhrRes.responseURL?.includes('HomeLatestTimeline'))
             handleLatestTweetsResponse(xhrRes);
         if (xhrRes.responseURL?.includes('CommunitiesMainPageTimeline'))
@@ -63,6 +65,10 @@
             handleTweetDetailResponse(xhrRes);
         if (xhrRes.responseURL?.includes('Followers'))
             handleFollowersResponse(xhrRes);
+        if (xhrRes.responseURL?.includes('Following'))
+            handleFollowersResponse(xhrRes);
+        if (xhrRes.responseURL?.includes('ConnectTabTimeline'))
+            handleConnectTabTimelineResponse(xhrRes);
     };
     const handleJSONResponseWithUsers = (xhrRes) => {
         const res = parseXHRResponse(xhrRes);
@@ -100,6 +106,19 @@
         if (graphqlInstructions)
             extractUsersFromGraphqlInstructions(graphqlInstructions);
     };
+    const handleRecommendationsResponse = (xhrRes) => {
+        const res = parseXHRResponse(xhrRes);
+        res?.forEach?.((tokenizedUser) => {
+            if (tokenizedUser?.user)
+                extractDataFromLegacyUserObject(tokenizedUser.user);
+        });
+    };
+    const handleConnectTabTimelineResponse = (xhrRes) => {
+        const res = parseXHRResponse(xhrRes);
+        const graphqlInstructions = res?.data?.connect_tab_timeline?.timeline?.instructions;
+        if (graphqlInstructions)
+            extractUsersFromGraphqlInstructions(graphqlInstructions);
+    };
     const extractUsersFromGraphqlInstructions = (instructions) => {
         instructions?.forEach((instruction) => {
             instruction?.entries?.forEach((entry) => {
@@ -113,6 +132,9 @@
                     const tweetResult = item?.item?.itemContent?.tweet_results?.result;
                     if (tweetResult)
                         extractUsersFromTweetResult(tweetResult);
+                    const legacyUserResult = item?.item?.itemContent?.user_results?.result?.legacy;
+                    if (legacyUserResult)
+                        extractDataFromLegacyUserObject(legacyUserResult);
                 });
             });
         });
