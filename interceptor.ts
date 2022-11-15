@@ -282,6 +282,7 @@
 
             tryAsTweet(el, user);
             tryAsTweetSpotlight(el, user);
+            tryAsUserCell(el, user);
         })
     };
 
@@ -321,6 +322,23 @@
             if (!mastodonIconElement) return;
 
             const wrapper = el.closest(`[data-testid="User-Names"] a[href="/${user.twitterHandle}"]`)?.parentElement?.parentElement;
+            if (!wrapper) return;
+
+            wrapper.appendChild(createTwitterSeparatorElement());
+            wrapper.appendChild(mastodonIconElement);
+
+            el.dataset.hasTwitterPromotion = 'true';
+        } catch (e) { /* ... */ }
+    }
+
+    const tryAsUserCell = (el: HTMLSpanElement, user: UsersStoreEntry) => {
+        try {
+            if (el.dataset.hasTwitterPromotion) return;
+
+            const mastodonIconElement = createMastodonIconElement(user);
+            if (!mastodonIconElement) return;
+
+            const wrapper = el.closest(`[data-testid="UserCell"] a[href="/${user.twitterHandle}"]`)?.parentElement?.parentElement;
             if (!wrapper) return;
 
             wrapper.appendChild(createTwitterSeparatorElement());
