@@ -74,7 +74,10 @@
         if (xhrRes.responseURL?.includes('recommendations.json')) handleRecommendationsResponse(xhrRes);
         if (xhrRes.responseURL?.includes('HomeLatestTimeline')) handleLatestTweetsResponse(xhrRes);
         if (xhrRes.responseURL?.includes('CommunitiesMainPageTimeline')) handleCommunityTimelineResponse(xhrRes);
-        if (xhrRes.responseURL?.includes('UserTweets')) handleUserTweetsResponse(xhrRes);
+        if (xhrRes.responseURL?.includes('UserTweets')) handleUserTimelineResponse(xhrRes);
+        if (xhrRes.responseURL?.includes('UserTweetsAndReplies')) handleUserTimelineResponse(xhrRes);
+        if (xhrRes.responseURL?.includes('UserMedia')) handleUserTimelineResponse(xhrRes);
+        if (xhrRes.responseURL?.includes('Likes')) handleUserTimelineResponse(xhrRes);
         if (xhrRes.responseURL?.includes('TweetDetail')) handleTweetDetailResponse(xhrRes);
         if (xhrRes.responseURL?.includes('Followers')) handleFollowersResponse(xhrRes);
         if (xhrRes.responseURL?.includes('Following')) handleFollowersResponse(xhrRes);
@@ -100,7 +103,7 @@
         if (graphqlInstructions) extractUsersFromGraphqlInstructions(graphqlInstructions);
     };
 
-    const handleUserTweetsResponse = (xhrRes: XMLHttpRequest) => {
+    const handleUserTimelineResponse = (xhrRes: XMLHttpRequest) => {
         const res = parseXHRResponse(xhrRes);
         const graphqlInstructions = res?.data?.user?.result?.timeline_v2?.timeline?.instructions;
         if (graphqlInstructions) extractUsersFromGraphqlInstructions(graphqlInstructions);

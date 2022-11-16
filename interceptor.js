@@ -60,7 +60,13 @@
         if (xhrRes.responseURL?.includes('CommunitiesMainPageTimeline'))
             handleCommunityTimelineResponse(xhrRes);
         if (xhrRes.responseURL?.includes('UserTweets'))
-            handleUserTweetsResponse(xhrRes);
+            handleUserTimelineResponse(xhrRes);
+        if (xhrRes.responseURL?.includes('UserTweetsAndReplies'))
+            handleUserTimelineResponse(xhrRes);
+        if (xhrRes.responseURL?.includes('UserMedia'))
+            handleUserTimelineResponse(xhrRes);
+        if (xhrRes.responseURL?.includes('Likes'))
+            handleUserTimelineResponse(xhrRes);
         if (xhrRes.responseURL?.includes('TweetDetail'))
             handleTweetDetailResponse(xhrRes);
         if (xhrRes.responseURL?.includes('Followers'))
@@ -88,7 +94,7 @@
         if (graphqlInstructions)
             extractUsersFromGraphqlInstructions(graphqlInstructions);
     };
-    const handleUserTweetsResponse = (xhrRes) => {
+    const handleUserTimelineResponse = (xhrRes) => {
         const res = parseXHRResponse(xhrRes);
         const graphqlInstructions = res?.data?.user?.result?.timeline_v2?.timeline?.instructions;
         if (graphqlInstructions)
