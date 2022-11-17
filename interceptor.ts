@@ -78,6 +78,7 @@
         if (xhrRes.responseURL?.includes('UserTweetsAndReplies')) handleUserTimelineResponse(xhrRes);
         if (xhrRes.responseURL?.includes('UserMedia')) handleUserTimelineResponse(xhrRes);
         if (xhrRes.responseURL?.includes('Likes')) handleUserTimelineResponse(xhrRes);
+        if (xhrRes.responseURL?.includes('Bookmarks')) handleBookmarksResponse(xhrRes);
         if (xhrRes.responseURL?.includes('TweetDetail')) handleTweetDetailResponse(xhrRes);
         if (xhrRes.responseURL?.includes('Followers')) handleFollowersResponse(xhrRes);
         if (xhrRes.responseURL?.includes('Following')) handleFollowersResponse(xhrRes);
@@ -106,6 +107,12 @@
     const handleUserTimelineResponse = (xhrRes: XMLHttpRequest) => {
         const res = parseXHRResponse(xhrRes);
         const graphqlInstructions = res?.data?.user?.result?.timeline_v2?.timeline?.instructions;
+        if (graphqlInstructions) extractUsersFromGraphqlInstructions(graphqlInstructions);
+    };
+
+    const handleBookmarksResponse = (xhrRes: XMLHttpRequest) => {
+        const res = parseXHRResponse(xhrRes);
+        const graphqlInstructions = res?.data?.bookmark_timeline_v2?.timeline?.instructions;
         if (graphqlInstructions) extractUsersFromGraphqlInstructions(graphqlInstructions);
     };
 
