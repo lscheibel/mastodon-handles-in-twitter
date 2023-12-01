@@ -72,6 +72,7 @@
         if (xhrRes.responseURL?.includes('adaptive.json')) handleJSONResponseWithUsers(xhrRes);
         if (xhrRes.responseURL?.includes('guide.json')) handleJSONResponseWithUsers(xhrRes);
         if (xhrRes.responseURL?.includes('recommendations.json')) handleRecommendationsResponse(xhrRes);
+        if (xhrRes.responseURL?.includes('HomeTimeline')) handleLatestTweetsResponse(xhrRes);
         if (xhrRes.responseURL?.includes('HomeLatestTimeline')) handleLatestTweetsResponse(xhrRes);
         if (xhrRes.responseURL?.includes('CommunitiesMainPageTimeline')) handleCommunityTimelineResponse(xhrRes);
         if (xhrRes.responseURL?.includes('UserTweets')) handleUserTimelineResponse(xhrRes);
@@ -199,7 +200,9 @@
     };
 
     // Parse Mastodon IDs of the form @foo@bar.tld or foo@bar.tld
-    const findMastodonHandle = (str: string) => {
+    const findMastodonHandle = (str: string | null) => {
+        if (str == null) return null;
+
         try {
             const matches = [...str.matchAll(M_ID_PATTERN_STRICT)].find((match) => !!match?.[2]);
             if (matches && matches.length >= 3) {
