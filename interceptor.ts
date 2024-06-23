@@ -184,7 +184,7 @@
         const mastodonHandle =
             findMastodonHandle(legacyUser.name) ||
             findMastodonHandleInUrls(getLinkedUrlsFromLegacyUser(legacyUser)) ||
-            findMastodonHandle(legacyUser.description);
+            findMastodonHandle(legacyUser.description || '');
 
         if (mastodonHandle) {
             userEntry.mastodonHandle = mastodonHandle;

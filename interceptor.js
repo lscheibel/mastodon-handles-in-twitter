@@ -175,7 +175,7 @@
         // Look through username, any links and the user bio. Todo: Pinned tweets.
         const mastodonHandle = findMastodonHandle(legacyUser.name) ||
             findMastodonHandleInUrls(getLinkedUrlsFromLegacyUser(legacyUser)) ||
-            findMastodonHandle(legacyUser.description);
+            findMastodonHandle(legacyUser.description || '');
         if (mastodonHandle) {
             userEntry.mastodonHandle = mastodonHandle;
             userEntry.mastodonUrl = mastodonHandleToInstanceUrl(mastodonHandle);
