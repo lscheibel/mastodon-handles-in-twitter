@@ -4,7 +4,7 @@ chrome.runtime.onInstalled.addListener(async () => {
     chrome.scripting.registerContentScripts([{
         id: 'twitter-mastodon-interceptor',
         js: ['interceptor.js'],
-        matches: ['https://*.twitter.com/*'],
+        matches: ['https://*.twitter.com/*', 'https://*.x.com/*'],
         world: 'MAIN',
         runAt: 'document_start',
     }]);

@@ -1,6 +1,6 @@
 {
   "name": "mastodon-handle-extension",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "This is a Chrome extension which tries to find the Mastodon handle of a twitter user and display it next to their tweets.",
   "main": "inject.js",
   "scripts": {
